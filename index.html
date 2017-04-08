@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wallStickers</title>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/jquery-ui.css">
+</head>
+<body>
+<div id="box"></div>
+<div id="addBox">
+    <textarea placeholder="请输入贴条内容" id="input_content"></textarea>
+    <input type="color" value="#A0C1FF" id="sticker_bg">
+    <button id="addSticker">addSticker</button>
+</div>
+<div id="searchSticker">
+    <input type="text" placeholder="请输入贴条编号" id="filter_content">
+    <button id="searchBtn">Search</button>
+</div>
+<script>
+    $(document).ready(function () {
+        var box=$('#box');
+        box.height(window.innerHeight);
+        StickersCount=1;
+        Stickers={
+            add:function (custorm_content,bgcolor) {
+                var s_div=document.createElement('div');
+                var s_title=document.createElement('h5');
+                var s_content=document.createElement('p');
+                var s_close=document.createElement('b');
+
+                s_div.id='d'+StickersCount;
+                s_div.className="stickers";
+                s_title.className='s_title';
+                s_content.className='s_content';
+                s_close.className='s_close';
+
+                s_title.innerHTML='第'+(StickersCount++)+'条 '+new Date().toLocaleDateString();
+                s_content.innerHTML=custorm_content;
+                s_close.innerHTML='&times';
+
+                s_div.style.backgroundColor=bgcolor;
+                s_div.style.top=this.get_stickers_top();
+                s_div.style.left=this.get_stickers_left();
+
+                s_div.appendChild(s_title);
+                s_div.appendChild(s_content);
+                s_div.appendChild(s_close);
+                $('#box').append(s_div);
+            },
+            get_stickers_top:function () {
+                var s_top=0;
+                var box_height=parseInt(box.height());
+                s_top= Math.floor(Math.random()*(box_height+1))+'px';
+
+                return s_top
+            },
+            get_stickers_left:function () {
+                var s_left=0;
+                var box_width=parseInt(box.width());
+                s_left= Math.floor(Math.random()*(box_width+1))+'px';
+
+                return s_left
+            }
+        };
+
+        function addOneSticker() {
+            var input_content=$('#input_content');
+            var c_content=input_content.val();
+            if(!c_content){
+                input_content.focus();
+                return
+            }
+            var sticker_bg=$('#sticker_bg').val() || "#A0C1FF";
+            Stickers.add(c_content,sticker_bg);
+        }
+        $('#addSticker').click(addOneSticker);
+
+        box.on('mousedown','.stickers',function (event) {
+            var target=event.target;
+            if(target.className!="stickers"){
+                target=$(target).parents('.stickers');
+            }
+            console.log('mousedown',target);
+            target.css({
+                'cursor':'move',
+                'z-index':50000
+            });
+            var left = parseInt(getComputedStyle(target[0]).left);
+            var top = parseInt(getComputedStyle(target[0]).top);
+            var old_x=event.clientX;
+            var old_y=event.clientY;
+            var isDrag=true;
+            document.onmousemove=function (e) {
+                if(!isDrag){ return }
+                var current_x=e.clientX;
+                var current_y=e.clientY;
+                var x=current_x-old_x;
+                var y=current_y-old_y;
+                target.css({
+                    top:top+y+'px',
+                    left:left+x+'px'
+                });
+            };
+            document.onmouseup=function () {
+                isDrag=false;
+                target.css({
+                    'cursor':'default',
+                    'z-index':2
+                });
+            }
+        });
+        box.on('click','.s_close',function () {
+            $(this).parents('.stickers').remove();
+        });
+
+        $('#searchBtn').click(function () {
+            var filter_input=$('#filter_content');
+            var sticker_id=filter_input.val();
+            if(!sticker_id){
+                filter_input.focus();
+                return
+            }
+            var s_width=$('#d'+sticker_id).width();
+            var s_height=$('#d'+sticker_id).height();
+            $('#d'+sticker_id).css({
+                'top':'50%',
+                'left':'50%',
+                'margin-top':-s_height/2+'px',
+                'margin-left':-s_width/2+'px',
+                'z-index':100000
+            }).animate({
+                borderColor: "#f00",
+                left:'49%'
+            },200).animate({
+                borderColor: "#0402ff",
+                left:'51%'
+            },200).animate({
+                borderColor: "#f00",
+                left:'49%'
+            },200).animate({
+                borderColor: "#0402ff",
+                left:'51%'
+            },200).animate({
+                borderColor: "transparent",
+                left:'50%'
+            },200);
+        });
+
+        for(var i=0;i<100;i++){
+            var r=Math.floor(Math.random()*255);
+            var g=Math.floor(Math.random()*255);
+            var b=Math.floor(Math.random()*255);
+            var color='rgb('+r+','+g+','+b+')';
+            Stickers.add("北 峰 DMR 智 能 综 合 巡 查 指 挥 调 度 系 统",color);
+        }
+    });
+</script>
+
+</body>
+</html>
